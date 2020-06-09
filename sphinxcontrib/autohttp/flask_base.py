@@ -243,6 +243,13 @@ class AutoflaskBase(Directive):
             if not view_doc and 'include-empty-docstring' not in self.options:
                 continue
 
+            # convert numpy-style docstrings into RST via napoleon
+            from sphinx.ext.napoleon import Config, NumpyDocstring
+            view_doc = str(NumpyDocstring(
+                '\n'.join(NumpyDocstring('')._dedent(view_doc.split('\n'))),
+                Config()
+            ))
+
             yield (method, paths, view_func, view_doc)
 
     def groupby_view(self, routes):

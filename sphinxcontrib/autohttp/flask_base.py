@@ -291,7 +291,7 @@ def filter_by_method(docstr, method):
     DELIM = '.. http:' # sections should be delimited by .. http:<METHOD>::
 
     # collect lines containing the delimiter and extract methods
-    method_lines = ['ALL']+[
+    method_lines = ['all']+[
         line.strip().split(DELIM)[-1].split('::')[0].lower()
         for line in lines if DELIM in line
     ]
@@ -305,4 +305,4 @@ def filter_by_method(docstr, method):
     doc_dict = dict(zip(method_lines, doc_lines))
 
     # return relevant sections
-    return doc_dict['ALL']+'\n'+doc_dict.get(method.lower(), '')
+    return doc_dict['all']+'\n'+doc_dict.get(method.lower(), '')

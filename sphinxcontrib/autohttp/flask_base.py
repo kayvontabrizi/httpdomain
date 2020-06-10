@@ -243,6 +243,9 @@ class AutoflaskBase(Directive):
             if not view_doc and 'include-empty-docstring' not in self.options:
                 continue
 
+            # select section (delimited by http:<method>) corresponding to method
+            view_doc = filter_by_method(view_doc, method)
+
             # convert numpy-style docstrings into RST via napoleon
             from sphinx.ext.napoleon import Config, NumpyDocstring
             view_doc = str(NumpyDocstring(
@@ -277,3 +280,29 @@ class AutoflaskBase(Directive):
             else:
                 for line in http_directive(method, paths, docstring):
                     yield line
+
+# return docstring with correct method-specific sections
+def filter_by_method(docstr, method):
+    # break into lines
+    lines = docstr.split('\n')
+    lines = [line for line in lines]
+
+    # define the method delimiter
+    DELIM = '.. http:' # sections should be delimited by .. http:<METHOD>::
+
+    # collect lines containing the delimiter and extract methods
+    method_lines = ['ALL']+[
+        line.strip().split(DELIM)[-1].split('::')[0].lower()
+        for line in lines if DELIM in line
+    ]
+
+    # replace lines that include the method delimeter
+    doc_lines = '\n'.join(
+        DELIM if DELIM in line else line for line in lines
+    ).split(DELIM)
+
+    # break script lines into sections by delimiter
+    doc_dict = dict(zip(method_lines, doc_lines))
+
+    # return relevant sections
+    return doc_dict['ALL']+'\n'+doc_dict.get(method.lower(), '')
